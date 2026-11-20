@@ -4,7 +4,7 @@ environment: prod
 backend:
   replicaCount: 2
   image:
-    repository: 123456789012.dkr.ecr.us-east-1.amazonaws.com/campusai-backend
+    repository: 528233125980.dkr.ecr.us-east-1.amazonaws.com/campusai-backend
     pullPolicy: IfNotPresent
     tag: "1.0.0"
   service:
@@ -26,7 +26,7 @@ backend:
 frontend:
   replicaCount: 2
   image:
-    repository: 123456789012.dkr.ecr.us-east-1.amazonaws.com/campusai-frontend
+    repository: 528233125980.dkr.ecr.us-east-1.amazonaws.com/campusai-frontend
     pullPolicy: IfNotPresent
     tag: "1.0.0"
   service:
@@ -43,7 +43,7 @@ frontend:
 mcp:
   replicaCount: 1
   image:
-    repository: 123456789012.dkr.ecr.us-east-1.amazonaws.com/campusai-mcp
+    repository: 528233125980.dkr.ecr.us-east-1.amazonaws.com/campusai-mcp
     pullPolicy: IfNotPresent
     tag: "1.0.0"
   service:
@@ -79,4 +79,6 @@ aws:
   region: us-east-1
   bedrockModelId: "anthropic.claude-3-5-sonnet-20241022-v2:0"
   bedrockEmbeddingModelId: "amazon.titan-embed-text-v2:0"
-  s3Bucket: "campusai-academic-documents-cbit-prod"
+  s3Bucket: "campusai-academic-cbit-528233125980"
+  rdsEndpoint: "campusai-dev-db.cwluoowemh9a.us-east-1.rds.amazonaws.com:5432"
+  eksClusterName: "campusai-cluster"
