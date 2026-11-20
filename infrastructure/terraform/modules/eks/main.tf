@@ -24,15 +24,15 @@ resource "aws_eks_cluster" "main" {
 
 resource "aws_eks_node_group" "main" {
   cluster_name    = aws_eks_cluster.main.name
-  node_group_name = "campusai-${var.environment}-nodes"
+  node_group_name = "campusai-${var.environment}-nodes-c7i-flex"
   node_role_arn   = var.node_role_arn
   subnet_ids      = var.private_subnet_ids
   instance_types  = var.node_instance_types
 
   scaling_config {
     desired_size = 2
-    max_size     = 5
-    min_size     = 2
+    max_size     = 3
+    min_size     = 1
   }
 
   update_config {

@@ -42,8 +42,8 @@ variable "enable_eks_cluster" {
 
 variable "eks_node_instance_types" {
   type        = list(string)
-  description = "EC2 instance types for EKS nodes (m7 or c7 generation)"
-  default     = ["m7i.large", "c7i.large"]
+  description = "EC2 instance types for EKS nodes (c7i-flex.large as requested)"
+  default     = ["c7i-flex.large"]
 }
 
 variable "db_instance_class" {

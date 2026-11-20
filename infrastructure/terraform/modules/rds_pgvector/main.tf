@@ -45,14 +45,14 @@ resource "aws_security_group" "rds_sg" {
   tags = { Name = "campusai-${var.environment}-rds-sg" }
 }
 
-# Parameter group supporting pgvector
+# Parameter group for CampusAI PostgreSQL 16
 resource "aws_db_parameter_group" "pgvector_pg" {
-  name   = "campusai-${var.environment}-pgvector-pg"
+  name   = "campusai-${var.environment}-pg-v2"
   family = "postgres16"
 
   parameter {
-    name  = "shared_preload_libraries"
-    value = "vector"
+    name  = "rds.force_ssl"
+    value = "0"
   }
 
   lifecycle { create_before_destroy = true }
