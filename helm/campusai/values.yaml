@@ -6,7 +6,7 @@ backend:
   image:
     repository: 528233125980.dkr.ecr.us-east-1.amazonaws.com/campusai-backend
     pullPolicy: IfNotPresent
-    tag: "1.0.0"
+    tag: "e9f6a543cf756f01b1d0d94f749a61cd019d0e13"
   service:
     type: ClusterIP
     port: 8000
@@ -28,7 +28,7 @@ frontend:
   image:
     repository: 528233125980.dkr.ecr.us-east-1.amazonaws.com/campusai-frontend
     pullPolicy: IfNotPresent
-    tag: "1.0.0"
+    tag: "e9f6a543cf756f01b1d0d94f749a61cd019d0e13"
   service:
     type: ClusterIP
     port: 3000
@@ -45,7 +45,7 @@ mcp:
   image:
     repository: 528233125980.dkr.ecr.us-east-1.amazonaws.com/campusai-mcp
     pullPolicy: IfNotPresent
-    tag: "1.0.0"
+    tag: "e9f6a543cf756f01b1d0d94f749a61cd019d0e13"
   service:
     type: ClusterIP
     port: 8001
