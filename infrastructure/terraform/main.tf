@@ -23,6 +23,11 @@ module "secrets" {
   db_username = var.db_username
 }
 
+module "ecr" {
+  source      = "./modules/ecr"
+  environment = var.environment
+}
+
 module "rds_pgvector" {
   source                = "./modules/rds_pgvector"
   environment           = var.environment

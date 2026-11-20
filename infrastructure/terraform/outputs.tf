@@ -18,6 +18,11 @@ output "bedrock_app_role_arn" {
   value       = module.iam.bedrock_irsa_role_arn
 }
 
+output "ecr_repository_urls" {
+  description = "Amazon ECR Repository URLs for GitHub Actions pushes"
+  value       = module.ecr.repository_urls
+}
+
 output "free_tier_mode" {
   description = "Whether AWS Free Tier cost-saving optimizations are enabled"
   value       = var.use_aws_free_tier
