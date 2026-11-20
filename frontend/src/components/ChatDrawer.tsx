@@ -29,7 +29,7 @@ export default function ChatDrawer() {
     },
   ]);
   const [inputMsg, setInputMsg] = useState("");
-  const [selectedLang, setSelectedLang] = useState<string>("auto");
+  const [detectedLanguageDisplay, setDetectedLanguageDisplay] = useState<string>("Auto-Detect");
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -59,13 +59,23 @@ export default function ChatDrawer() {
     try {
       const payload: any = {
         message: text,
-        preferred_language: selectedLang === "auto" ? null : selectedLang,
       };
 
       const response = await fetchWithAuth("/api/v1/chat", {
         method: "POST",
         body: JSON.stringify(payload),
       });
+
+      const langMap: Record<string, string> = {
+        en: "English",
+        "hi-Latn": "Hinglish",
+        "te-Latn": "Tenglish",
+        te: "తెలుగు",
+        hi: "हिन्दी",
+      };
+      if (response.detected_language) {
+        setDetectedLanguageDisplay(langMap[response.detected_language] || response.detected_language);
+      }
 
       const assistantMessage: ChatMessage = {
         id: `msg-resp-${Date.now()}`,
@@ -125,18 +135,13 @@ export default function ChatDrawer() {
             </div>
 
             <div className="flex items-center space-x-2">
-              <select
-                value={selectedLang}
-                onChange={(e) => setSelectedLang(e.target.value)}
-                className="text-xs bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1 text-slate-700 dark:text-slate-300"
+              <div
+                className="flex items-center space-x-1.5 px-2.5 py-1 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full text-[11px] font-medium text-slate-700 dark:text-slate-300 shadow-sm"
+                title="CampusAI dynamically detects your input language"
               >
-                <option value="auto">🌐 Auto-Detect</option>
-                <option value="en">English</option>
-                <option value="hi-Latn">Hinglish (Romanized)</option>
-                <option value="te-Latn">Tenglish (Romanized)</option>
-                <option value="te">తెలుగు (Telugu)</option>
-                <option value="hi">हिन्दी (Hindi)</option>
-              </select>
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                <span>Auto: {detectedLanguageDisplay}</span>
+              </div>
               <button
                 onClick={() => setIsOpen(false)}
                 className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-lg"
