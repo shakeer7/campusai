@@ -1,12 +1,7 @@
 # CampusAI: Production-Grade Agentic College Assistant
 > Inspired by Campx Medha. Built with Next.js, FastAPI, Ollama, AWS Bedrock, Amazon Translate, LangGraph, and PostgreSQL pgvector.
 
-[![Architecture diagram of shakeer7/campusai](architecture-diagram.png)](https://gitdiagram.com/shakeer7/campusai?utm_source=readme&utm_medium=picture)
 
-[![CI/CD Deployment](https://github.com/shakeer7/campusai/actions/workflows/deploy.yml/badge.svg)](https://github.com/shakeer7/campusai/actions/workflows/deploy.yml)
-[![Live Demo](https://img.shields.io/badge/Live%20Demo-AWS%20Load%20Balancer-blue?style=flat&logo=amazon-aws)](http://a783316d36dde478d881389cc73a62a8-904703005.us-east-1.elb.amazonaws.com)
-
-**Live Deployment URL**: [http://a783316d36dde478d881389cc73a62a8-904703005.us-east-1.elb.amazonaws.com](http://a783316d36dde478d881389cc73a62a8-904703005.us-east-1.elb.amazonaws.com)
 
 CampusAI is a production-grade, secure, multilingual AI assistant for college management. Designed around a synthetic **Chaitanya Bharathi Institute of Technology (CBIT)** environment, it empowers students, faculty, and administrators with academic records retrieval, 75% attendance calculations, syllabus RAG search, voice interaction, and agentic workflows.
 
