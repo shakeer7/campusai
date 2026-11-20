@@ -41,6 +41,14 @@ spec:
               value: {{ .Values.aws.s3Bucket | quote }}
             - name: AWS_BEDROCK_MOCK_FALLBACK
               value: "true"
+            - name: LLM_PROVIDER
+              value: {{ .Values.llmProvider | default "ollama" | quote }}
+            - name: OLLAMA_BASE_URL
+              value: {{ .Values.ollama.baseUrl | default "http://localhost:11434" | quote }}
+            - name: OLLAMA_MODEL
+              value: {{ .Values.ollama.model | default "llama3.2" | quote }}
+            - name: AWS_TRANSLATE_ENABLED
+              value: "true"
             - name: DATABASE_URL
               value: "sqlite:////tmp/campusai.db"
           livenessProbe:

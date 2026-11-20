@@ -8,6 +8,20 @@ from app.models.user import User
 from app.auth.dependencies import get_current_user
 from app.schemas.chat import ChatRequest, ChatResponse
 from app.ai.bedrock_client import run_bedrock_orchestration
+from app.ai.translator import translate_with_aws
+from pydantic import BaseModel
+from typing import Optional
+
+class TranslateRequest(BaseModel):
+    text: str
+    target_language: str
+    source_language: Optional[str] = "auto"
+
+class TranslateResponse(BaseModel):
+    translated_text: str
+    target_language: str
+    source_language: str
+    service: str = "AWS Translate"
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/chat", tags=["AI Chat & Bedrock"])
@@ -82,3 +96,27 @@ def stream_chat(
         yield f"data: {json.dumps({'type': 'done'})}\n\n"
 
     return StreamingResponse(event_generator(), media_type="text/event-stream")
+
+
+@router.post("/translate", response_model=TranslateResponse)
+def translate_message_endpoint(
+    req: TranslateRequest,
+    current_user: User = Depends(get_current_user)
+):
+    """Neural translation endpoint powered by AWS Translate."""
+    try:
+        translated_text, target_lang = translate_with_aws(
+            text=req.text,
+            target_lang=req.target_language,
+            source_lang=req.source_language or "auto"
+        )
+        return TranslateResponse(
+            translated_text=translated_text,
+            target_language=target_lang,
+            source_language=req.source_language or "auto",
+            service="AWS Translate"
+        )
+    except Exception as e:
+        logger.error(f"Translation failed: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Translation error: {str(e)}")
+

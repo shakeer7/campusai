@@ -1,17 +1,23 @@
 import re
 from typing import Tuple
 
-# Common markers for Romanized Telugu (Tenglish)
+# Distinct grammatical markers for Romanized Telugu (Tenglish)
 ROMANIZED_TELUGU_KEYWORDS = {
     "naku", "undha", "undhi", "undi", "cheppandi", "enti", "ledu", "epudu",
     "eppudu", "chudandi", "chaduvukovali", "telusukovali", "kavalenu", "yela", "ela",
-    "unayi", "unnaayi", "classlu", "examlu", "marks", "attendance", "ivvandi"
+    "unayi", "unnaayi", "classlu", "examlu", "ivvandi", "kavali", "gurinchi",
+    "ippudu", "repu", "nenu", "meeru", "mee", "manaki", "chudu", "pettandi"
 }
 
-# Common markers for Romanized Hindi (Hinglish)
+# Distinct grammatical markers for Romanized Hindi (Hinglish)
 ROMANIZED_HINDI_KEYWORDS = {
-    "mera", "meri", "kitna", "kitni", "batao", "batayein", "kab", "kya", "hai", "hain",
-    "nahi", "aaj", "kal", "chahiye", "dekho", "kitne"
+    "mera", "meri", "mere", "mujhe", "mujhko", "apna", "apni", "apne", "humara", "humari",
+    "kitna", "kitni", "kitne", "batao", "bataiye", "batayein", "bata", "dikhao", "dekhna",
+    "kab", "kya", "hai", "hain", "nahi", "aaj", "kal", "chahiye", "dekho", "karna", "karein",
+    "karu", "karoon", "hoga", "hogi", "hoge", "kaise", "kisko", "chhutti", "chutti", "padhai",
+    "pariksha", "nateeja", "bhai", "theek", "thik", "shukriya", "dhanyawad", "namaste", "pranam",
+    "kuch", "sirf", "bhi", "bohot", "bahut", "wala", "wali", "wale", "raha", "rahi", "rahe",
+    "hota", "hoti", "hote", "bache", "bachi", "bacha"
 }
 
 
@@ -42,21 +48,26 @@ def detect_language(text: str) -> Tuple[str, float, str]:
     # 3. Tokenize words for Romanized vernacular checks
     clean_words = set(re.findall(r'[a-zA-Z]+', text.lower()))
 
-    # Check Romanized Telugu
+    # Check matches against Romanized sets
     telugu_matches = clean_words.intersection(ROMANIZED_TELUGU_KEYWORDS)
-    if len(telugu_matches) >= 1:
-        return "te-Latn", 0.85, "Romanized Telugu (Tenglish)"
-
-    # Check Romanized Hindi
     hindi_matches = clean_words.intersection(ROMANIZED_HINDI_KEYWORDS)
-    if len(hindi_matches) >= 1:
+
+    if len(hindi_matches) > len(telugu_matches) and len(hindi_matches) >= 1:
+        confidence = min(0.85 + (len(hindi_matches) * 0.04), 0.98)
+        return "hi-Latn", confidence, "Romanized Hindi (Hinglish)"
+
+    if len(telugu_matches) > len(hindi_matches) and len(telugu_matches) >= 1:
+        confidence = min(0.85 + (len(telugu_matches) * 0.04), 0.98)
+        return "te-Latn", confidence, "Romanized Telugu (Tenglish)"
+
+    if len(hindi_matches) > 0 and len(hindi_matches) == len(telugu_matches):
         return "hi-Latn", 0.85, "Romanized Hindi (Hinglish)"
 
     return "en", 0.99, "English"
 
 
 def build_multilingual_system_prompt(language_code: str, user_role: str, user_name: str) -> str:
-    """Constructs academic system instructions for Bedrock Converse API with language guidance."""
+    """Constructs academic system instructions with role and language guidance."""
     base_instructions = f"""You are CampusAI, an intelligent, empathetic, and authoritative college assistant inspired by Campx Medha at Chaitanya Bharathi Institute of Technology (CBIT).
 You are interacting with {user_name}, whose authenticated role is: {user_role.upper()}.
 
@@ -71,9 +82,14 @@ Core Guidelines:
     elif language_code == "te-Latn":
         lang_directive = "- The user is writing in Romanized Telugu (Tenglish). Respond in friendly, fluent Romanized Telugu (e.g., 'Mee overall attendance 78% undi, meeru eligible ga unnaru.') so they feel right at home."
     elif language_code == "hi":
-        lang_directive = "- The user is writing in Hindi. Respond in polite, accurate Hindi (Devanagari), retaining official academic acronyms (SGPA, CGPA, Hall Ticket)."
+        lang_directive = "- The user is writing in Hindi (Devanagari). Respond in polite, accurate Hindi, retaining official academic acronyms (SGPA, CGPA, Hall Ticket)."
     elif language_code == "hi-Latn":
-        lang_directive = "- The user is writing in Hinglish. Respond in friendly, clear Romanized Hindi."
+        lang_directive = (
+            "- The user is communicating in Hinglish (Romanized Hindi blended with English). "
+            "Respond in natural, friendly, colloquial Hinglish "
+            "(e.g., 'Aapki overall attendance 80% hai aur aap exams ke liye completely eligible hain. Subject-wise details neeche di gayi hain.'). "
+            "Keep academic and technical keywords (e.g., Attendance, Timetable, SGPA, CGPA, Credits, Classroom) in English."
+        )
     else:
         lang_directive = "- Respond in professional, concise, and helpful English with structured bullet points and tables where appropriate."
 

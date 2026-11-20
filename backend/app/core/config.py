@@ -33,6 +33,16 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
 
+    # LLM Provider Configuration ("ollama", "bedrock", "mock")
+    LLM_PROVIDER: str = "ollama"
+
+    # Ollama Settings
+    OLLAMA_BASE_URL: str = "http://localhost:11434"
+    OLLAMA_MODEL: str = "llama3.2"
+    OLLAMA_TIMEOUT: int = 45
+    OLLAMA_TEMPERATURE: float = 0.2
+    OLLAMA_KEEP_ALIVE: str = "5m"
+
     # AWS Bedrock Settings
     AWS_REGION: str = "us-east-1"
     AWS_ACCESS_KEY_ID: str = ""

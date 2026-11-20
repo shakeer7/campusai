@@ -75,6 +75,11 @@ ingress:
           pathType: Prefix
           service: frontend
 
+llmProvider: "ollama"
+ollama:
+  baseUrl: "http://localhost:11434"
+  model: "llama3.2"
+
 aws:
   region: us-east-1
   bedrockModelId: "anthropic.claude-3-5-sonnet-20241022-v2:0"

@@ -24,7 +24,7 @@ export default function ChatDrawer() {
       id: "intro-1",
       role: "assistant",
       content:
-        "Hello! I am **CampusAI**, your intelligent college assistant at CBIT. Ask me in **English, Telugu (తెలుగు), Romanized Telugu (Tenglish), or Hindi** about attendance, timetable, results, syllabus, or raise an attendance correction request!",
+        "Hello! I am **CampusAI**, your intelligent college assistant at CBIT. Ask me in **English, Hinglish, Tenglish, Telugu (తెలుగు), or Hindi** about attendance, timetable, results, syllabus, or raise an attendance correction request!",
       timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
     },
   ]);
@@ -120,7 +120,7 @@ export default function ChatDrawer() {
                   <span>CampusAI Assistant</span>
                   <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block" />
                 </div>
-                <div className="text-[11px] text-slate-500 dark:text-slate-400">AWS Bedrock • Multilingual RAG</div>
+                <div className="text-[11px] text-slate-500 dark:text-slate-400">Ollama & Bedrock • AWS Translate • Multilingual</div>
               </div>
             </div>
 
@@ -132,8 +132,9 @@ export default function ChatDrawer() {
               >
                 <option value="auto">🌐 Auto-Detect</option>
                 <option value="en">English</option>
-                <option value="te">తెలుగు (Telugu)</option>
+                <option value="hi-Latn">Hinglish (Romanized)</option>
                 <option value="te-Latn">Tenglish (Romanized)</option>
+                <option value="te">తెలుగు (Telugu)</option>
                 <option value="hi">हिन्दी (Hindi)</option>
               </select>
               <button

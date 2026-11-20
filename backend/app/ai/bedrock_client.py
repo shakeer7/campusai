@@ -9,6 +9,7 @@ from app.core.config import settings
 from app.models.user import User
 from app.tools.registry import ACADEMIC_TOOL_SPECS, execute_tool
 from app.ai.multilingual import detect_language, build_multilingual_system_prompt
+from app.ai.translator import translate_with_aws
 
 logger = logging.getLogger(__name__)
 
@@ -48,6 +49,17 @@ def run_bedrock_orchestration(
     start_time = time.time()
     detected_code, confidence, display_lang = detect_language(user_message)
     active_lang = preferred_language if preferred_language else detected_code
+
+    # Check if active LLM provider is Ollama
+    if settings.LLM_PROVIDER.lower() == "ollama":
+        from app.ai.ollama_client import run_ollama_orchestration
+        return run_ollama_orchestration(
+            user_message=user_message,
+            conversation_history=conversation_history,
+            current_user=current_user,
+            db=db,
+            preferred_language=active_lang
+        )
 
     system_prompt = build_multilingual_system_prompt(
         language_code=active_lang,
@@ -214,6 +226,8 @@ def _generate_local_academic_response(
                 resp_text = f"Mee current attendance {cur_pct}% undi. 75% target reach avvadaniki meeru inka {needed} consecutive classes attend avvali." if needed > 0 else f"Super! Mee attendance {cur_pct}% undi. Meeru {can_miss} classes miss aina safe ga 75% paine untaru."
             elif lang == "hi":
                 resp_text = f"आपकी वर्तमान उपस्थिति {cur_pct}% है। 75% का लक्ष्य पाने के लिए आपको अगली {needed} कक्षाओं में उपस्थित होना होगा।"
+            elif lang == "hi-Latn":
+                resp_text = f"Aapki current attendance {cur_pct}% hai. 75% target reach karne ke liye aapko aage aane wali {needed} consecutive classes attend karni padengi." if needed > 0 else f"Badhiya! Aapki attendance {cur_pct}% hai. Aap abhi bhi {can_miss} classes miss kar sakte hain aur aapka attendance 75% ke upar hi safe rahega."
             else:
                 resp_text = f"Your current attendance is **{cur_pct}%**. {tool_res.get('message', '')}"
 
@@ -236,6 +250,8 @@ def _generate_local_academic_response(
                 resp_text = f"Mee overall attendance **{overall_pct}%** undi ({elig_str}). Subject-wise details kinda unnayi:\n"
             elif lang == "hi":
                 resp_text = f"आपकी कुल उपस्थिति **{overall_pct}%** है ({elig_str})। विषयवार विवरण निम्नलिखित है:\n"
+            elif lang == "hi-Latn":
+                resp_text = f"Aapka official attendance status yeh raha:\n- **Overall Attendance**: **{overall_pct}%** ({elig_str})\n\n### Subject-wise Details:\n"
             else:
                 resp_text = f"Here is your official attendance status:\n- **Overall Attendance**: **{overall_pct}%** ({elig_str})\n\n### Subject-wise Breakdown:\n"
 
@@ -266,6 +282,8 @@ def _generate_local_academic_response(
             resp_text = "Mee timetable schedule kinda ichina vidhamga undi:\n\n"
         elif lang == "hi":
             resp_text = "आपकी कक्षा समय-सारिणी निम्नलिखित है:\n\n"
+        elif lang == "hi-Latn":
+            resp_text = "Yeh raha aapka timetable schedule:\n\n"
         else:
             resp_text = "Here is your academic timetable schedule:\n\n"
 
@@ -294,7 +312,15 @@ def _generate_local_academic_response(
         })
         cgpa = tool_res.get("cgpa", 0.0)
         roll = tool_res.get("student_roll", "")
-        resp_text = f"Academic Performance for Roll No: **{roll}**\n- **Cumulative CGPA**: **{cgpa} / 10.0**\n\n"
+        if lang == "hi-Latn":
+            resp_text = f"Roll No: **{roll}** ke Exam Results aur Academic Performance:\n- **Cumulative CGPA**: **{cgpa} / 10.0** (Great Job!)\n\n"
+        elif lang == "hi":
+            resp_text = f"अनुक्रमांक: **{roll}** के परीक्षा परिणाम और अकादमिक प्रदर्शन:\n- **संचयी CGPA**: **{cgpa} / 10.0**\n\n"
+        elif lang in ["te", "te-Latn"]:
+            resp_text = f"Roll No: **{roll}** Exam Results mariyu Academic Performance:\n- **Cumulative CGPA**: **{cgpa} / 10.0**\n\n"
+        else:
+            resp_text = f"Academic Performance for Roll No: **{roll}**\n- **Cumulative CGPA**: **{cgpa} / 10.0**\n\n"
+
         for sem in tool_res.get("semesters", []):
             resp_text += f"**Semester {sem.get('semester')}** — SGPA: **{sem.get('sgpa')}** (Credits: {sem.get('total_credits')})\n"
             for r in sem.get("results", []):
@@ -320,7 +346,15 @@ def _generate_local_academic_response(
             "execution_time_ms": round((time.time() - t_start) * 1000, 2)
         })
         due = tool_res.get("total_pending_due", 0.0)
-        resp_text = f"ERP Fee Account Overview:\n- **Total Pending Balance**: **₹{due:,.2f}**\n\n"
+        if lang == "hi-Latn":
+            resp_text = f"ERP Fee Account Overview:\n- **Total Pending Balance**: **₹{due:,.2f}**\n\n"
+        elif lang == "hi":
+            resp_text = f"ईआरपी शुल्क खाता विवरण:\n- **कुल बकाया राशि**: **₹{due:,.2f}**\n\n"
+        elif lang in ["te", "te-Latn"]:
+            resp_text = f"ERP Fee Account Details:\n- **Total Pending Balance**: **₹{due:,.2f}**\n\n"
+        else:
+            resp_text = f"ERP Fee Account Overview:\n- **Total Pending Balance**: **₹{due:,.2f}**\n\n"
+
         for f in tool_res.get("records", []):
             resp_text += f"- **{f.get('fee_type')}**: Total ₹{f.get('total_amount'):,.2f} | Paid ₹{f.get('paid_amount'):,.2f} | Due: ₹{f.get('due_amount'):,.2f} (Status: `{f.get('status')}`)\n"
 
@@ -345,7 +379,15 @@ def _generate_local_academic_response(
         })
         results = tool_res.get("results", [])
         if results:
-            resp_text = "Based on official CBIT academic documents, here are the retrieved details:\n\n"
+            if lang == "hi-Latn":
+                resp_text = "Official CBIT academic documents ke anusaar, yeh details hain:\n\n"
+            elif lang == "hi":
+                resp_text = "आधिकारिक सीबीईटी शैक्षणिक दस्तावेजों के अनुसार, विवरण निम्नलिखित हैं:\n\n"
+            elif lang in ["te", "te-Latn"]:
+                resp_text = "Official CBIT academic documents prakaaram, details kinda unnaayi:\n\n"
+            else:
+                resp_text = "Based on official CBIT academic documents, here are the retrieved details:\n\n"
+
             for item in results:
                 resp_text += f"> {item.get('content')}\n\n"
                 citations.append({
@@ -356,7 +398,10 @@ def _generate_local_academic_response(
                 })
             resp_text += "\n*Citations provided below from verified college regulations.*"
         else:
-            resp_text = f"I searched the academic repository for '{query}', but found no matching syllabus sections. Please ensure the syllabus PDF has been uploaded to the repository."
+            if lang == "hi-Latn":
+                resp_text = f"Maine academic repository me '{query}' search kiya, par koi matching syllabus topic nahi mila. Kripya syllabus PDF upload karein."
+            else:
+                resp_text = f"I searched the academic repository for '{query}', but found no matching syllabus sections. Please ensure the syllabus PDF has been uploaded to the repository."
 
         return {
             "message": resp_text,
@@ -374,6 +419,8 @@ def _generate_local_academic_response(
             msg = f"Namaskaram {user.full_name}! Nenu mee CampusAI assistant ni. Mee attendance, timetable, results leda syllabus gurinchi emaina adagavachu."
         elif lang == "hi":
             msg = f"नमस्ते {user.full_name}! मैं आपका CampusAI सहायक हूँ। आप अपनी उपस्थिति, समय सारिणी, परीक्षा परिणाम या शुल्क के बारे में पूछ सकते हैं।"
+        elif lang == "hi-Latn":
+            msg = f"Namaste {user.full_name}! Main CampusAI hoon, aapka college assistant. Main aapki attendance calculation, timetable, semester results, fees status aur syllabus lookup me madad kar sakta hoon. Aaj aapko kya check karna hai?"
         else:
             msg = f"Hello {user.full_name}! I am CampusAI, your academic assistant. I can help you with:\n- Attendance summary and 75% target calculator\n- Daily and weekly timetable schedule\n- Semester grades, SGPA, and CGPA\n- Syllabus breakdown and AI study plans\n- Raising attendance correction requests\n- College fee balance check"
 

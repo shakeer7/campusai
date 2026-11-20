@@ -94,7 +94,8 @@ resource "aws_iam_policy" "bedrock_app_policy" {
       {
         Effect = "Allow"
         Action = [
-          "polly:SynthesizeSpeech"
+          "polly:SynthesizeSpeech",
+          "translate:TranslateText"
         ]
         Resource = "*"
       }

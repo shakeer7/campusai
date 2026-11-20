@@ -42,6 +42,10 @@ services:
       BEDROCK_MODEL_ID: ${BEDROCK_MODEL_ID:-anthropic.claude-3-5-sonnet-20241022-v2:0}
       BEDROCK_EMBEDDING_MODEL_ID: ${BEDROCK_EMBEDDING_MODEL_ID:-amazon.titan-embed-text-v2:0}
       AWS_BEDROCK_MOCK_FALLBACK: ${AWS_BEDROCK_MOCK_FALLBACK:-true}
+      LLM_PROVIDER: ${LLM_PROVIDER:-ollama}
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://ollama:11434}
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-llama3.2}
+      AWS_TRANSLATE_ENABLED: "true"
       JWT_SECRET_KEY: ${JWT_SECRET_KEY:-campusai_super_secret_jwt_key_minimum_32_characters_for_security_2026}
       CORS_ORIGINS: "[\"http://localhost:3000\",\"http://127.0.0.1:3000\"]"
     ports:
@@ -110,9 +114,22 @@ services:
     networks:
       - campusai-net
 
+  # Ollama Local LLM Service
+  ollama:
+    image: ollama/ollama:latest
+    container_name: campusai-ollama
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    networks:
+      - campusai-net
+
 networks:
   campusai-net:
     driver: bridge
 
 volumes:
   postgres_data:
+  ollama_data:
