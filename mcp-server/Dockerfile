@@ -8,12 +8,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libpq5 \
     && rm -rf /var/lib/apt/lists/*
 
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+COPY mcp-server/requirements.txt ./
+COPY backend/requirements.txt ./backend_requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt -r backend_requirements.txt
 
-# Copy MCP server code and backend dependencies for models
-COPY . /app
-COPY ../backend/app /app/backend/app
+# Copy MCP server code and backend code
+COPY mcp-server/ /app/
+COPY backend/ /app/backend/
 
 ENV PYTHONPATH=/app/backend:$PYTHONPATH
 ENV PYTHONUNBUFFERED=1
