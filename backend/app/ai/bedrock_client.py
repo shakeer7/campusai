@@ -411,6 +411,62 @@ def _generate_local_academic_response(
             "citations": citations
         }
 
+    # 6. Profile / Roll Number / Identity Query
+    elif any(k in q for k in ["roll", "profile", "who am i", "kaun hu", "naam", "details", "branch", "section"]):
+        from app.models.profile import Student, Faculty
+        student = db.query(Student).filter(Student.user_id == user.id).first()
+        if student:
+            batch_str = getattr(student, "batch", "2022-2026")
+            sec_str = getattr(student, "section", "A")
+            sem_str = getattr(student, "current_semester", 6)
+            if lang == "hi-Latn":
+                resp_text = (
+                    f"Aapka Roll Number **{student.roll_number}** hai.\n\n"
+                    f"- **Student Name**: {user.full_name}\n"
+                    f"- **Department**: Computer Science & Engineering (CSE)\n"
+                    f"- **Current Semester**: Semester {sem_str} (Section {sec_str})\n"
+                    f"- **Batch**: {batch_str}\n"
+                    f"- **College**: Chaitanya Bharathi Institute of Technology (CBIT)"
+                )
+            elif lang == "hi":
+                resp_text = (
+                    f"आपका अनुक्रमांक (Roll No): **{student.roll_number}** है।\n\n"
+                    f"- **नाम**: {user.full_name}\n"
+                    f"- **विभाग**: कंप्यूटर साइंस एंड इंजीनियरिंग (CSE)\n"
+                    f"- **सत्र**: सेमेस्टर {sem_str} (वर्ग {sec_str})\n"
+                    f"- **बैच**: {batch_str}\n"
+                    f"- **कॉलेज**: सीबीईटी (CBIT)"
+                )
+            elif lang in ["te", "te-Latn"]:
+                resp_text = (
+                    f"Mee Roll Number **{student.roll_number}**.\n\n"
+                    f"- **Student Name**: {user.full_name}\n"
+                    f"- **Department**: CSE\n"
+                    f"- **Current Semester**: Semester {sem_str} (Section {sec_str})\n"
+                    f"- **Batch**: {batch_str}\n"
+                    f"- **College**: CBIT"
+                )
+            else:
+                resp_text = (
+                    f"Here is your official CBIT student profile:\n\n"
+                    f"- **Roll Number**: **{student.roll_number}**\n"
+                    f"- **Full Name**: {user.full_name}\n"
+                    f"- **Department**: Computer Science & Engineering (CSE)\n"
+                    f"- **Current Semester**: Semester {sem_str} (Section {sec_str})\n"
+                    f"- **Batch**: {batch_str}\n"
+                    f"- **College**: Chaitanya Bharathi Institute of Technology (CBIT)"
+                )
+        else:
+            resp_text = f"User Profile: **{user.full_name}** ({user.email}) - Role: `{user.role.value}`"
+
+        return {
+            "message": resp_text,
+            "detected_language": lang,
+            "language_confidence": 0.95,
+            "tools_executed": tools_executed,
+            "citations": citations
+        }
+
     # Default Academic Greeting & Help
     else:
         if lang == "te":

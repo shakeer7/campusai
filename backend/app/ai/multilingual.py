@@ -13,11 +13,11 @@ ROMANIZED_TELUGU_KEYWORDS = {
 ROMANIZED_HINDI_KEYWORDS = {
     "mera", "meri", "mere", "mujhe", "mujhko", "apna", "apni", "apne", "humara", "humari",
     "kitna", "kitni", "kitne", "batao", "bataiye", "batayein", "bata", "dikhao", "dekhna",
-    "kab", "kya", "hai", "hain", "nahi", "aaj", "kal", "chahiye", "dekho", "karna", "karein",
+    "kab", "kya", "hai", "hain", "hy", "nahi", "aaj", "kal", "chahiye", "dekho", "karna", "karein",
     "karu", "karoon", "hoga", "hogi", "hoge", "kaise", "kisko", "chhutti", "chutti", "padhai",
     "pariksha", "nateeja", "bhai", "theek", "thik", "shukriya", "dhanyawad", "namaste", "pranam",
     "kuch", "sirf", "bhi", "bohot", "bahut", "wala", "wali", "wale", "raha", "rahi", "rahe",
-    "hota", "hoti", "hote", "bache", "bachi", "bacha"
+    "hota", "hoti", "hote", "bache", "bachi", "bacha", "kaun", "kiska", "batao"
 }
 
 
