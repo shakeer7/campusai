@@ -1,0 +1,29 @@
+groups:
+  - name: campusai_academic_alerts
+    rules:
+      - alert: BackendServiceDown
+        expr: up{job="campusai-backend"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "CampusAI FastAPI backend instance is down"
+          description: "Backend pod has stopped reporting Prometheus metrics for over 1 minute."
+
+      - alert: HighAPIErrorRate
+        expr: rate(http_requests_total{status=~"5.."}[5m]) / rate(http_requests_total[5m]) * 100 > 5
+        for: 3m
+        labels:
+          severity: warning
+        annotations:
+          summary: "CampusAI 5xx error rate elevated (> 5%)"
+          description: "High error rate detected in academic record or AI API calls."
+
+      - alert: BedrockLatencyHigh
+        expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{path="/api/v1/chat"}[5m])) by (le)) > 8
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Bedrock converse inference latency high"
+          description: "95th percentile chat latency exceeds 8 seconds."

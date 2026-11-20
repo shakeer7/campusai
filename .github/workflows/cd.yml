@@ -1,0 +1,50 @@
+name: CampusAI CD GitOps Pipeline
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  build-and-push-ecr:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials via OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::123456789012:role/campusai-github-actions-deployer
+          aws-region: us-east-1
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build, tag, and push Backend Image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -t $ECR_REGISTRY/campusai-backend:$IMAGE_TAG campusai/backend
+          docker push $ECR_REGISTRY/campusai-backend:$IMAGE_TAG
+
+      - name: Build, tag, and push Frontend Image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -t $ECR_REGISTRY/campusai-frontend:$IMAGE_TAG campusai/frontend
+          docker push $ECR_REGISTRY/campusai-frontend:$IMAGE_TAG
+
+      - name: Update GitOps Helm Image Tag
+        run: |
+          sed -i "s/tag: .*/tag: \"${{ github.sha }}\"/" campusai/helm/campusai/values.yaml
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add campusai/helm/campusai/values.yaml
+          git commit -m "chore(gitops): update image tag to ${{ github.sha }} [skip ci]" || echo "No changes"
+          git push origin main || echo "Git push skipped in workflow"

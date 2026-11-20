@@ -1,0 +1,18 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: campusai
+  namespace: argocd
+spec:
+  description: CampusAI Production Academic Assistant GitOps Project
+  sourceRepos:
+    - https://github.com/cbit-org/campusai.git
+  destinations:
+    - namespace: campusai
+      server: https://kubernetes.default.svc
+  clusterResourceWhitelist:
+    - group: ''
+      kind: Namespace
+  namespaceResourceWhitelist:
+    - group: '*'
+      kind: '*'

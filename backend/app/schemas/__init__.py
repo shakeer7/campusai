@@ -1,0 +1,78 @@
+from app.schemas.auth import Token, TokenPayload, LoginRequest, RefreshTokenRequest, UserCreate, UserResponse
+from app.schemas.student import (
+    SubjectAttendance,
+    AttendanceSummaryResponse,
+    AttendanceTargetRequest,
+    AttendanceTargetResponse,
+    TimetableEntryResponse,
+    ExamResultResponse,
+    SemesterResultSummary,
+    FeeResponse,
+    StudyPlanRequest,
+    StudyPlanResponse,
+)
+from app.schemas.faculty import (
+    FacultySubjectSummary,
+    MarkAttendanceItem,
+    BatchAttendanceMarkRequest,
+    CorrectionReviewDecision,
+    CorrectionItemDetail,
+)
+from app.schemas.workflow import (
+    CorrectionDraftRequest,
+    CorrectionDraftPreview,
+    CorrectionConfirmationSubmission,
+    WorkflowStepResponse,
+)
+from app.schemas.chat import (
+    ChatMessage,
+    ChatRequest,
+    ChatResponse,
+    ToolCallInfo,
+    CitationInfo,
+    VoiceProcessRequest,
+)
+from app.schemas.rag import (
+    DocumentMetadata,
+    DocumentUploadResponse,
+    DocumentSearchRequest,
+    DocumentChunkResult,
+)
+
+__all__ = [
+    "Token",
+    "TokenPayload",
+    "LoginRequest",
+    "RefreshTokenRequest",
+    "UserCreate",
+    "UserResponse",
+    "SubjectAttendance",
+    "AttendanceSummaryResponse",
+    "AttendanceTargetRequest",
+    "AttendanceTargetResponse",
+    "TimetableEntryResponse",
+    "ExamResultResponse",
+    "SemesterResultSummary",
+    "FeeResponse",
+    "StudyPlanRequest",
+    "StudyPlanResponse",
+    "FacultySubjectSummary",
+    "MarkAttendanceItem",
+    "BatchAttendanceMarkRequest",
+    "CorrectionReviewDecision",
+    "CorrectionItemDetail",
+    "CorrectionDraftRequest",
+    "CorrectionDraftPreview",
+    "CorrectionConfirmationSubmission",
+    "WorkflowStepResponse",
+    "ChatMessage",
+    "ChatRequest",
+    "ChatResponse",
+    "ToolCallInfo",
+    "CitationInfo",
+    "VoiceProcessRequest",
+    "DocumentMetadata",
+    "DocumentUploadResponse",
+    "DocumentSearchRequest",
+    "DocumentChunkResult",
+]

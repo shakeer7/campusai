@@ -1,0 +1,118 @@
+version: '3.8'
+
+services:
+  # PostgreSQL 16 with pgvector extension enabled
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: campusai-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-campusai_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-campusai_secure_pass}
+      POSTGRES_DB: ${POSTGRES_DB:-campusai_db}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-campusai_user} -d ${POSTGRES_DB:-campusai_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - campusai-net
+
+  # FastAPI Backend Service
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: campusai-backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-campusai_user}:${POSTGRES_PASSWORD:-campusai_secure_pass}@postgres:5432/${POSTGRES_DB:-campusai_db}
+      ENVIRONMENT: development
+      AWS_REGION: ${AWS_REGION:-us-east-1}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-}
+      AWS_SESSION_TOKEN: ${AWS_SESSION_TOKEN:-}
+      BEDROCK_MODEL_ID: ${BEDROCK_MODEL_ID:-anthropic.claude-3-5-sonnet-20241022-v2:0}
+      BEDROCK_EMBEDDING_MODEL_ID: ${BEDROCK_EMBEDDING_MODEL_ID:-amazon.titan-embed-text-v2:0}
+      AWS_BEDROCK_MOCK_FALLBACK: ${AWS_BEDROCK_MOCK_FALLBACK:-true}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:-campusai_super_secret_jwt_key_minimum_32_characters_for_security_2026}
+      CORS_ORIGINS: "[\"http://localhost:3000\",\"http://127.0.0.1:3000\"]"
+    ports:
+      - "8000:8000"
+    networks:
+      - campusai-net
+
+  # Standalone Model Context Protocol (MCP) Server
+  mcp-server:
+    build:
+      context: ./mcp-server
+      dockerfile: Dockerfile
+    container_name: campusai-mcp-server
+    restart: unless-stopped
+    depends_on:
+      - backend
+    environment:
+      MCP_SERVER_HOST: 0.0.0.0
+      MCP_SERVER_PORT: 8001
+      MCP_API_KEY: ${MCP_API_KEY:-campusai_mcp_secure_token_key_2026}
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-campusai_user}:${POSTGRES_PASSWORD:-campusai_secure_pass}@postgres:5432/${POSTGRES_DB:-campusai_db}
+    ports:
+      - "8001:8001"
+    networks:
+      - campusai-net
+
+  # Next.js 14 Frontend Application
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: campusai-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:8000
+    ports:
+      - "3000:3000"
+    networks:
+      - campusai-net
+
+  # Prometheus Metrics Collector
+  prometheus:
+    image: prom/prometheus:v2.51.0
+    container_name: campusai-prometheus
+    restart: unless-stopped
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    ports:
+      - "9090:9090"
+    networks:
+      - campusai-net
+
+  # Grafana Dashboard Visualization
+  grafana:
+    image: grafana/grafana:10.4.0
+    container_name: campusai-grafana
+    restart: unless-stopped
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards
+    ports:
+      - "3001:3000"
+    networks:
+      - campusai-net
+
+networks:
+  campusai-net:
+    driver: bridge
+
+volumes:
+  postgres_data:
