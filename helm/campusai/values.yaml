@@ -30,8 +30,8 @@ frontend:
     pullPolicy: IfNotPresent
     tag: "e9f6a543cf756f01b1d0d94f749a61cd019d0e13"
   service:
-    type: ClusterIP
-    port: 3000
+    type: LoadBalancer
+    port: 80
   resources:
     limits:
       cpu: 500m
@@ -58,7 +58,7 @@ mcp:
       memory: 256Mi
 
 ingress:
-  enabled: true
+  enabled: false
   className: alb
   annotations:
     alb.ingress.kubernetes.io/scheme: internet-facing

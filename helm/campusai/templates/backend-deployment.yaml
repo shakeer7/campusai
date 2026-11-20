@@ -39,6 +39,10 @@ spec:
               value: {{ .Values.aws.bedrockEmbeddingModelId | quote }}
             - name: AWS_S3_BUCKET_DOCUMENTS
               value: {{ .Values.aws.s3Bucket | quote }}
+            - name: AWS_BEDROCK_MOCK_FALLBACK
+              value: "true"
+            - name: DATABASE_URL
+              value: "sqlite:////tmp/campusai.db"
           livenessProbe:
             httpGet:
               path: /health

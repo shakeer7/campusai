@@ -26,6 +26,11 @@ logger = logging.getLogger("campusai")
 async def lifespan(app: FastAPI):
     logger.info("Initializing CampusAI backend...")
     init_db()
+    try:
+        from app.seed import seed_database
+        seed_database()
+    except Exception as e:
+        logger.warning(f"Seed initialization: {e}")
     logger.info("CampusAI backend successfully initialized.")
     yield
     logger.info("CampusAI backend shutting down.")
@@ -38,10 +43,11 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# CORS Middleware
+# CORS Middleware (allows browser access from AWS Load Balancer and all clients)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.CORS_ORIGINS,
+    allow_origins=["*"],
+    allow_origin_regex=".*",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

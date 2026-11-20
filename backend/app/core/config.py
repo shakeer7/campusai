@@ -17,11 +17,7 @@ class Settings(BaseSettings):
     APP_VERSION: str = "1.0.0"
     ENVIRONMENT: str = "development"
     LOG_LEVEL: str = "INFO"
-    CORS_ORIGINS: List[str] = [
-        "http://localhost:3000",
-        "http://127.0.0.1:3000",
-        "http://localhost:8000",
-    ]
+    CORS_ORIGINS: List[str] = ["*"]
 
     # Database Settings
     POSTGRES_USER: str = "campusai_user"

@@ -24,19 +24,19 @@ spec:
           ports:
             - containerPort: 3000
           env:
-            - name: NEXT_PUBLIC_API_URL
-              value: "/api/v1"
+            - name: BACKEND_INTERNAL_URL
+              value: "http://{{ .Release.Name }}-backend:8000"
           livenessProbe:
             httpGet:
-              path: /api/health
+              path: /
               port: 3000
-            initialDelaySeconds: 15
+            initialDelaySeconds: 20
             periodSeconds: 20
           readinessProbe:
             httpGet:
-              path: /api/health
+              path: /
               port: 3000
-            initialDelaySeconds: 10
+            initialDelaySeconds: 15
             periodSeconds: 10
           resources:
             {{- toYaml .Values.frontend.resources | nindent 12 }}
@@ -45,6 +45,8 @@ apiVersion: v1
 kind: Service
 metadata:
   name: {{ .Release.Name }}-frontend
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-scheme: "internet-facing"
 spec:
   type: {{ .Values.frontend.service.type }}
   ports:
