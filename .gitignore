@@ -57,6 +57,8 @@ yarn-error.log*
 .terraform/
 *.tfstate
 *.tfstate.*
+*.tfplan
+*.tfplan.*
 .terraform.lock.hcl
 
 # OS & IDE

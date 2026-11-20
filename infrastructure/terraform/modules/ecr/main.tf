@@ -5,7 +5,7 @@ locals {
 }
 
 resource "aws_ecr_repository" "repos" {
-  for_each             = toset(locals.repositories)
+  for_each             = toset(local.repositories)
   name                 = each.value
   image_tag_mutability = "MUTABLE"
 

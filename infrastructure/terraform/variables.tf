@@ -36,14 +36,14 @@ variable "eks_cluster_name" {
 
 variable "enable_eks_cluster" {
   type        = bool
-  description = "Set to false when using Free Tier EC2/ECS runner to avoid $73/mo EKS cluster fee"
-  default     = false
+  description = "Enable Amazon EKS cluster"
+  default     = true
 }
 
 variable "eks_node_instance_types" {
   type        = list(string)
-  description = "EC2 instance types for EKS nodes (t3.micro / t4g.micro for Free Tier)"
-  default     = ["t3.micro"]
+  description = "EC2 instance types for EKS nodes (m7 or c7 generation)"
+  default     = ["m7i.large", "c7i.large"]
 }
 
 variable "db_instance_class" {
@@ -67,5 +67,5 @@ variable "db_username" {
 variable "s3_bucket_name" {
   type        = string
   description = "S3 bucket for academic documents (5GB Free Tier eligible)"
-  default     = "campusai-academic-documents-cbit-free-tier"
+  default     = "campusai-academic-cbit-528233125980"
 }

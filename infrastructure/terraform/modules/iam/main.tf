@@ -102,22 +102,20 @@ resource "aws_iam_policy" "bedrock_app_policy" {
   })
 }
 
-# IRSA Role for CampusAI Backend ServiceAccount
+# IRSA / Pod Identity Role for CampusAI Backend ServiceAccount
 resource "aws_iam_role" "bedrock_irsa" {
   name = "campusai-${var.environment}-backend-irsa-role"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [{
-      Action = "sts:AssumeRoleWithWebIdentity"
+      Action = ["sts:AssumeRole", "sts:TagSession"]
       Effect = "Allow"
       Principal = {
-        Federated = var.oidc_provider_arn != "" ? var.oidc_provider_arn : "arn:aws:iam::123456789012:oidc-provider/oidc.eks.us-east-1.amazonaws.com/id/EXAMPLE"
-      }
-      Condition = {
-        StringEquals = {
-          "${replace(var.oidc_provider_url, "https://", "")}:sub" = "system:serviceaccount:campusai:campusai-backend-sa"
-        }
+        Service = [
+          "pods.eks.amazonaws.com",
+          "ec2.amazonaws.com"
+        ]
       }
     }]
   })
