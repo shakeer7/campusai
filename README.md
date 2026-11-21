@@ -3,7 +3,7 @@
 
 
 
-CampusAI is a production-grade, secure, multilingual AI assistant for college management. Designed around a synthetic **Chaitanya Bharathi Institute of Technology (CBIT)** environment, it empowers students, faculty, and administrators with academic records retrieval, 75% attendance calculations, syllabus RAG search, voice interaction, and agentic workflows.
+CampusAI is a production-grade, secure, multilingual AI assistant for college management. Designed around a synthetic **college** environment, it empowers students, faculty, and administrators with academic records retrieval, 75% attendance calculations, syllabus RAG search, voice interaction, and agentic workflows.
 
 ---
 
